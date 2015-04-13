@@ -17,15 +17,25 @@ based on QuectelM10 chip.
 #include "GSM.h"
 #include "WideTextFinder.h"
 
-//De-comment this two lines below if you have the
-//first version of GSM GPRS Shield
-//#define _GSM_TXPIN_ 4
-//#define _GSM_RXPIN_ 5
+#ifdef GEEETECH
 
-//De-comment this two lines below if you have the
-//second version og GSM GPRS Shield
-#define _GSM_TXPIN_ 2
-#define _GSM_RXPIN_ 3
+	//TX/RX pins on GEEETECH are 7,8 or 0,1 depending on jumpers for SW/HW Serial
+	#define _GSM_TXPIN_ 7
+	#define _GSM_RXPIN_ 8
+
+#elif ORIGINAL
+
+	//De-comment this two lines below if you have the
+	//first version of GSM GPRS Shield
+	//#define _GSM_TXPIN_ 4
+	//#define _GSM_RXPIN_ 5
+
+	//De-comment this two lines below if you have the
+	//second version og GSM GPRS Shield
+	#define _GSM_TXPIN_ 2
+	#define _GSM_RXPIN_ 3
+
+#endif
 
 #ifdef UNO
 GSM::GSM():_cell(_GSM_TXPIN_,_GSM_RXPIN_),_tf(_cell, 10),_status(IDLE)
@@ -68,12 +78,7 @@ int GSM::begin(long baud_rate)
 #ifdef DEBUG_ON
                Serial.println(F("DB:NO RESP"));
 #endif
-               // generate turn on pulse
-               digitalWrite(GSM_ON, HIGH);
-               delay(1200);
-               digitalWrite(GSM_ON, LOW);
-               delay(10000);
-               WaitResp(1000, 1000);
+			cyclePowerButton();
           } else {
 #ifdef DEBUG_ON
                Serial.println(F("DB:ELSE"));
@@ -91,49 +96,15 @@ int GSM::begin(long baud_rate)
           norep=false;
      }
 
+     int baudArray[8] = {1200,2400,4800,9600,19200,38400,57600,115200};
+     // If still not responsive try all baud rates
 
      if (AT_RESP_ERR_DIF_RESP == SendATCmdWaitResp(str_at, 500, 100, str_ok, 5)&&!turnedON) {		//check OK
 #ifdef DEBUG_ON
           Serial.println(F("DB:AUTO BAUD RATE"));
 #endif
           for (int i=0; i<8; i++) {
-               switch (i) {
-               case 0:
-                    _cell.begin(1200);
-                    break;
-
-               case 1:
-                    _cell.begin(2400);
-                    break;
-
-               case 2:
-                    _cell.begin(4800);
-                    break;
-
-               case 3:
-                    _cell.begin(9600);
-                    break;
-
-               case 4:
-                    _cell.begin(19200);
-                    break;
-
-               case 5:
-                    _cell.begin(38400);
-                    break;
-
-               case 6:
-                    _cell.begin(57600);
-                    break;
-
-               case 7:
-                    _cell.begin(115200);
-                    break;
-
-                    // if nothing else matches, do the default
-                    // default is optional
-               }
-
+               _cell.begin(baudArray[i]);
                delay(100);
 
 #ifdef DEBUG_PRINT
@@ -175,118 +146,20 @@ int GSM::begin(long baud_rate)
      if(norep==true&&!turnedON) {
           Serial.println(F("Trying to force the baud-rate to 9600\n"));
           for (int i=0; i<8; i++) {
-               switch (i) {
-               case 0:
-                    _cell.begin(1200);
-                    delay(1000);
-                    Serial.println(F("1200"));
-                    _cell.print(F("AT+IPR=9600\r"));
-                    delay(1000);
-                    _cell.begin(9600);
-                    delay(1000);
-                    SendATCmdWaitResp(str_at, 500, 100, str_ok, 5);
-                    delay(1000);
-                    WaitResp(1000,1000);
-                    break;
-
-               case 1:
-                    _cell.begin(2400);
-                    delay(1000);
-                    Serial.println(F("2400"));
-                    _cell.print(F("AT+IPR=9600\r"));
-                    delay(1000);
-                    _cell.begin(9600);
-                    delay(1000);
-                    SendATCmdWaitResp(str_at, 500, 100, str_ok, 5);
-                    delay(1000);
-                    WaitResp(1000,1000);
-                    break;
-
-               case 2:
-                    _cell.begin(4800);
-                    delay(1000);
-                    Serial.println(F("4800"));
-                    _cell.print(F("AT+IPR=9600\r"));
-                    delay(1000);
-                    _cell.begin(9600);
-                    delay(1000);
-                    SendATCmdWaitResp(str_at, 500, 100, str_ok, 5);
-                    delay(1000);
-                    WaitResp(1000,1000);
-                    break;
-
-               case 3:
-                    _cell.begin(9600);
-                    delay(1000);
-                    Serial.println(F("9600"));
-                    _cell.print(F("AT+IPR=9600\r"));
-                    delay(1000);
-                    _cell.begin(9600);
-                    delay(1000);
-                    SendATCmdWaitResp(str_at, 500, 100, str_ok, 5);
-                    delay(1000);
-                    WaitResp(1000,1000);
-                    break;
-
-               case 4:
-                    _cell.begin(19200);
-                    delay(1000);
-                    Serial.println(F("19200"));
-                    _cell.print(F("AT+IPR=9600\r"));
-                    delay(1000);
-                    _cell.begin(9600);
-                    delay(1000);
-                    SendATCmdWaitResp(str_at, 500, 100, str_ok, 5);
-                    delay(1000);
-                    WaitResp(1000,1000);
-                    break;
-
-               case 5:
-                    _cell.begin(38400);
-                    delay(1000);
-                    Serial.println(F("38400"));
-                    _cell.print(F("AT+IPR=9600\r"));
-                    delay(1000);
-                    _cell.begin(9600);
-                    delay(1000);
-                    SendATCmdWaitResp(str_at, 500, 100, str_ok, 5);
-                    delay(1000);
-                    WaitResp(1000,1000);
-                    break;
-
-               case 6:
-                    _cell.begin(57600);
-                    delay(1000);
-                    Serial.println(F("57600"));
-                    _cell.print(F("AT+IPR=9600\r"));
-                    delay(1000);
-                    _cell.begin(9600);
-                    delay(1000);
-                    SendATCmdWaitResp(str_at, 500, 100, str_ok, 5);
-                    delay(1000);
-                    WaitResp(1000,1000);
-                    break;
-
-               case 7:
-                    _cell.begin(115200);
-                    delay(1000);
-                    Serial.println(F("115200"));
-                    _cell.print(F("AT+IPR=9600\r"));
-                    delay(1000);
-                    _cell.begin(9600);
-                    delay(1000);
-                    SendATCmdWaitResp(str_at, 500, 100, str_ok, 5);
-                    delay(1000);
-                    WaitResp(1000,1000);
-                    break;
-               }
+               _cell.begin(baudArray[i]);
+               delay(1000);
+               Serial.println(baudArray[i]);
+               _cell.print(F("AT+IPR=9600\r"));
+               delay(1000);
+               _cell.begin(9600);
+               delay(1000);
+               SendATCmdWaitResp(str_at, 500, 100, str_ok, 5);
+               delay(1000);
+               WaitResp(1000,1000);
           }
 
           Serial.println(F("ERROR: SIM900 doesn't answer. Check power and serial pins in GSM.cpp"));
-          digitalWrite(GSM_ON, HIGH);
-          delay(1200);
-          digitalWrite(GSM_ON, LOW);
-          delay(10000);
+          cyclePowerButton();
           return 0;
      }
 
@@ -311,6 +184,25 @@ int GSM::begin(long baud_rate)
      }
 }
 
+void GSM::cyclePowerButton() {
+#ifdef GEEETECH
+     // generate turn on pulse
+     digitalWrite(GSM_ON, LOW);
+     delay(1000);
+     digitalWrite(GSM_ON, HIGH);
+     delay(2500);
+     digitalWrite(GSM_ON, LOW);
+     delay(3500);
+     WaitResp(1000, 1000);
+#elif ORIGINAL
+     // generate turn on pulse
+     digitalWrite(GSM_ON, HIGH);
+     delay(1200);
+     digitalWrite(GSM_ON, LOW);
+     delay(10000);
+     WaitResp(1000, 1000);
+#endif
+}
 
 void GSM::InitParam(byte group)
 {
@@ -430,6 +322,10 @@ char GSM::SendATCmdWaitResp(char const *AT_cmd_string,
           // delay 500 msec. before sending next repeated AT command
           // so if we have no_of_attempts=1 tmout will not occurred
           if (i > 0) delay(500);
+
+#ifdef DEBUG_ON
+          Serial.println(AT_cmd_string);
+#endif
 
           _cell.println(AT_cmd_string);
           status = WaitResp(start_comm_tmout, max_interchar_tmout);

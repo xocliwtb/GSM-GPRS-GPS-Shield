@@ -37,7 +37,11 @@ byte CallGSM::CallStatus(void)
           // <CR><LF>+CPAS: 3<CR><LF> <CR><LF>OK<CR><LF> - NO CALL
           // call in progress
           // <CR><LF>+CPAS: 4<CR><LF> <CR><LF>OK<CR><LF> - NO CALL
-          if(gsm.IsStringReceived("+CPAS: 0")) {
+          if(gsm.IsStringReceived("+CPAS: 4")) {
+               // active call
+               // -----------
+               ret_val = CALL_ACTIVE_VOICE;
+          } else if(gsm.IsStringReceived("+CPAS: 0")) {
                // ready - there is no call
                // ------------------------
                ret_val = CALL_NONE;
@@ -45,10 +49,6 @@ byte CallGSM::CallStatus(void)
                // incoming call
                // --------------
                ret_val = CALL_INCOM_VOICE;
-          } else if(gsm.IsStringReceived("+CPAS: 4")) {
-               // active call
-               // -----------
-               ret_val = CALL_ACTIVE_VOICE;
           }
      }
 
@@ -307,7 +307,7 @@ void CallGSM::SendDTMF(char *number_string, int time)
 
 void CallGSM::SetDTMF(int DTMF_status)
 {
-     if(DTMF_status==1)
+     if(DTMF_status == DTMF_DETECT_ON)
           gsm.SendATCmdWaitResp("AT+DDET=1", 500, 50, "OK", 5);
      else
           gsm.SendATCmdWaitResp("AT+DDET=0", 500, 50, "OK", 5);

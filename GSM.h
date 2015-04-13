@@ -4,18 +4,20 @@
 #define UNO
 //#define MEGA
 
+// Indicate whether Geetech SIM900 or the original board for which this library was written
+// http://www.geeetech.com/wiki/index.php/Arduino_GPRS_Shield
+#define GEEETECH
+//#define ORIGINAL
+
 #include <SoftwareSerial.h>
 #include <inttypes.h>
 #include "WideTextFinder.h"
 
 
 #define ctrlz 26 //Ascii character for ctr+z. End of a SMS.
-#define cr    13 //Ascii character for carriage return. 
-#define lf    10 //Ascii character for line feed. 
-#define ctrlz 26 //Ascii character for ctr+z. End of a SMS.
-#define cr    13 //Ascii character for carriage return. 
+#define cr    13 //Ascii character for carriage return.
 #define lf    10 //Ascii character for line feed.
-#define GSM_LIB_VERSION 308 // library version X.YY (e.g. 1.00)
+#define GSM_LIB_VERSION 309 // library version X.YY (e.g. 1.00)
 
 #define DEBUG_ON
 
@@ -40,16 +42,29 @@
 // by this way it is possible to develop program without paying for the SMSs
 //#define DEBUG_SMS_ENABLED
 
+#ifdef GEEETECH
 
-// pins definition
-#define GSM_ON              8 // connect GSM Module turn ON to pin 77 
-#define GSM_RESET           9 // connect GSM Module RESET to pin 35
-//#define DTMF_OUTPUT_ENABLE  71 // connect DTMF Output Enable not used
-#define DTMF_DATA_VALID     14 // connect DTMF Data Valid to pin 14
-#define DTMF_DATA0          72 // connect DTMF Data0 to pin 72
-#define DTMF_DATA1          73 // connect DTMF Data1 to pin 73
-#define DTMF_DATA2          74 // connect DTMF Data2 to pin 74
-#define DTMF_DATA3          75 // connect DTMF Data3 to pin 75
+	#define GSM_ON              9  // GEETECH software reset on pin 9 if jumper JP is soldered
+	#define GSM_RESET           99 // GEETECH board does not have a software RESET
+	//#define DTMF_OUTPUT_ENABLE  71 // connect DTMF Output Enable not used
+	#define DTMF_DATA_VALID     98 // connect DTMF Data Valid to pin 14
+	#define DTMF_DATA0          97 // connect DTMF Data0 to pin 72
+	#define DTMF_DATA1          96 // connect DTMF Data1 to pin 73
+	#define DTMF_DATA2          95 // connect DTMF Data2 to pin 74
+	#define DTMF_DATA3          94 // connect DTMF Data3 to pin 75
+
+#else
+
+	#define GSM_ON              8 // connect GSM Module turn ON to pin 77
+	#define GSM_RESET           9 // connect GSM Module RESET to pin 35
+	//#define DTMF_OUTPUT_ENABLE  71 // connect DTMF Output Enable not used
+	#define DTMF_DATA_VALID     14 // connect DTMF Data Valid to pin 14
+	#define DTMF_DATA0          72 // connect DTMF Data0 to pin 72
+	#define DTMF_DATA1          73 // connect DTMF Data1 to pin 73
+	#define DTMF_DATA2          74 // connect DTMF Data2 to pin 74
+	#define DTMF_DATA3          75 // connect DTMF Data3 to pin 75
+
+#endif
 
 // length for the internal communication buffer
 #define COMM_BUF_LEN        200
@@ -224,6 +239,7 @@ public:
                             char const *response_string,
                             byte no_of_attempts);
      void Echo(byte state);
+     void cyclePowerButton();
 
 
      //-----------------------

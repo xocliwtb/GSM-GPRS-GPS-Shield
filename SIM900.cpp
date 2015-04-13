@@ -24,7 +24,7 @@ Output:		none
 
 Comments:	It would be nice to call this function
  			automatically when gsm.begin is called (of course
- 			only if a SIM908 is used). 
+ 			only if a SIM908 is used).
 **********************************************************/
 
 char SIMCOM900::forceON()
@@ -38,7 +38,7 @@ char SIMCOM900::forceON()
      if(IsStringReceived(str_ok)) {
           ret_val=1;
      }
-     
+
      p_char = strchr((char *)(gsm.comm_buf),',');
      p_char1 = p_char+1;
      *(p_char1+2)=0;
@@ -169,6 +169,7 @@ int SIMCOM900::readCellData(int &mcc, int &mnc, long &lac, long &cellid)
      return 1;
 }
 
+/*
 boolean SIMCOM900::readSMS(char* msg, int msglength, char* number, int nlength)
 {
      Serial.println(F("This method is deprecated! Please use GetSMS in the SMS class."));
@@ -176,10 +177,8 @@ boolean SIMCOM900::readSMS(char* msg, int msglength, char* number, int nlength)
      char *p_char;
      char *p_char1;
 
-     /*
-     if (getStatus()==IDLE)
-       return false;
-     */
+//     if (getStatus()==IDLE)
+//       return false;
 #ifdef UNO
      _tf.setTimeout(_GSM_DATA_TOUT_);
 #endif
@@ -250,6 +249,7 @@ boolean SIMCOM900::readSMS(char* msg, int msglength, char* number, int nlength)
      };
      return false;
 };
+*/
 
 boolean SIMCOM900::readCall(char* number, int nlength)
 {

@@ -3,6 +3,13 @@
 
 #include "SIM900.h"
 
+// DTMF Detect Setting
+enum set_dtmf_enum
+{
+  DTMF_DETECT_OFF = 0,
+  DTMF_DETECT_ON
+};
+
 class CallGSM {
 public:
      // finds out the status of call
