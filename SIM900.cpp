@@ -224,15 +224,15 @@ boolean SIMCOM900::readSMS(char* msg, int msglength, char* number, int nlength)
           // #ifdef MEGA
           //index=_cell.read();
           // #endif
-          // Serial.println("DEBUG");
+          // Serial.println(F("DEBUG"));
           // #ifdef UNO
           // _tf.getString("\",\"", "\"", number, nlength);
           // #endif
-          // Serial.println("PRIMA");
+          // Serial.println(F("PRIMA"));
           // #ifdef MEGA
           // _cell.getString("\",\"", "\"", number, nlength);
           // #endif
-          // Serial.println("DEBUG");
+          // Serial.println(F("DEBUG"));
           // #ifdef UNO
           // _tf.getString("\n", "\nOK", msg, msglength);
           // #endif
@@ -242,7 +242,7 @@ boolean SIMCOM900::readSMS(char* msg, int msglength, char* number, int nlength)
 
           SimpleWrite(F("AT+CMGD="));
           SimpleWriteln(index);
-          // Serial.print("VAL= ");
+          // Serial.print(F("VAL= "));
           // Serial.println(index);
           gsm.WaitResp(5000, 50, str_ok);
           return true;
@@ -990,9 +990,9 @@ char GSM::ComparePhoneNumber(byte position, char *phone_number)
      ret_val = 0; // numbers are not the same so far
      if (position == 0) return (-3);
      if (1 == GetPhoneNumber(position, sim_phone_number)) {
-          //Serial.print("CHIAMANTE ");
+          //Serial.print(F("CHIAMANTE "));
           //Serial.println(phone_number);
-          //Serial.print("SALVATO ");
+          //Serial.print(F("SALVATO "));
           //Serial.println(sim_phone_number);
 
           // there is a valid number at the spec. SIM position

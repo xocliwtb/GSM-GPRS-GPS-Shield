@@ -71,14 +71,17 @@ int GSM::begin(long baud_rate)
      p_comm_buf = &comm_buf[0];
      setStatus(IDLE);
 
-     // if no-reply we turn to turn on the module
+     // Send AT command and wait for OK.  3 attempts.  If no response, power on
      for (cont=0; cont<3; cont++) {
-          if (AT_RESP_ERR_NO_RESP == SendATCmdWaitResp(str_at, 500, 100, str_ok, 5)&&!turnedON) {		//check power
+		  char stat = SendATCmdWaitResp(str_at, 500, 100, str_ok, 5);
+          if (stat == AT_RESP_ERR_NO_RESP && !turnedON) {		//check power
                // there is no response => turn on the module
 #ifdef DEBUG_ON
                Serial.println(F("DB:NO RESP"));
 #endif
-			cyclePowerButton();
+			   cyclePowerButton();
+          } else if (stat == AT_RESP_OK) {
+			   break;
           } else {
 #ifdef DEBUG_ON
                Serial.println(F("DB:ELSE"));
@@ -87,7 +90,7 @@ int GSM::begin(long baud_rate)
           }
      }
 
-
+     // Verify that AT command responds with OK
      if (AT_RESP_OK == SendATCmdWaitResp(str_at, 500, 100, str_ok, 5)) {
 #ifdef DEBUG_ON
           Serial.println(F("DB:CORRECT BR"));
@@ -96,10 +99,9 @@ int GSM::begin(long baud_rate)
           norep=false;
      }
 
+     // If still not responding, cycle through the various baud rates and attempt to try each
      int baudArray[8] = {1200,2400,4800,9600,19200,38400,57600,115200};
-     // If still not responsive try all baud rates
-
-     if (AT_RESP_ERR_DIF_RESP == SendATCmdWaitResp(str_at, 500, 100, str_ok, 5)&&!turnedON) {		//check OK
+     if (AT_RESP_ERR_DIF_RESP == SendATCmdWaitResp(str_at, 500, 100, str_ok, 5) && !turnedON) {		//check OK
 #ifdef DEBUG_ON
           Serial.println(F("DB:AUTO BAUD RATE"));
 #endif
@@ -143,7 +145,7 @@ int GSM::begin(long baud_rate)
           p_comm_buf = &comm_buf[0];
      }
 
-     if(norep==true&&!turnedON) {
+     if(norep==true && !turnedON) {
           Serial.println(F("Trying to force the baud-rate to 9600\n"));
           for (int i=0; i<8; i++) {
                _cell.begin(baudArray[i]);
@@ -184,6 +186,7 @@ int GSM::begin(long baud_rate)
      }
 }
 
+// Send the software signal to turn on/off the GSM module
 void GSM::cyclePowerButton() {
 #ifdef GEEETECH
      // generate turn on pulse
@@ -541,9 +544,9 @@ byte GSM::IsStringReceived(char const *compare_string)
           	#endif
           */
 #ifdef DEBUG_ON
-          Serial.print("ATT: ");
+          Serial.print(F("ATT: "));
           Serial.println(compare_string);
-          Serial.print("RIC: ");
+          Serial.print(F("RIC: "));
           Serial.println((char *)comm_buf);
 #endif
           ch = strstr((char *)comm_buf, compare_string);
@@ -564,7 +567,7 @@ byte GSM::IsStringReceived(char const *compare_string)
 #ifdef DEBUG_ON
           Serial.print(F("ATT: "));
           Serial.println(compare_string);
-          Serial.print(F("RIC: NO STRING RCVD"));
+          Serial.println(F("RIC: NO STRING RCVD"));
 #endif
      }
 

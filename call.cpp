@@ -176,11 +176,11 @@ byte CallGSM::CallStatusWithAuth(char *phone_number,
                if (p_char != NULL) {
                     *p_char = 0; // end of string
                     strcpy(phone_number, (char *)(p_char1));
-                    Serial.print("ATTESO: ");
+                    Serial.print(F("ATTESO: "));
                     Serial.println(phone_number);
                } else
                     //Serial.println(gsm.comm_buf);
-                    Serial.println("NULL");
+                    Serial.println(F("NULL"));
 
                if ( (ret_val == CALL_INCOM_VOICE_NOT_AUTH)
                          || (ret_val == CALL_INCOM_DATA_NOT_AUTH)) {
@@ -321,9 +321,9 @@ char CallGSM::DetDTMF()
      char dtmf_char='-';
      gsm.WaitResp(1000, 500);
      {
-          //Serial.print("BUF: ");
+          //Serial.print(F("BUF: "));
           //Serial.println((char *)gsm.comm_buf);
-          //Serial.println("end");
+          //Serial.println(F("end"));
           p_char = strstr((char *)(gsm.comm_buf),"+DTMF:");
           if (p_char != NULL) {
                p_char1 = p_char+6;  //we are on the first char of BCS
